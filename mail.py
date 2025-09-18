@@ -69,6 +69,21 @@ def epoch_to_local_str(s):
     except Exception:
         return str(s)
 
+def doc_number(d: dict) -> str:
+    """
+    Devuelve un identificador humano del documento priorizando:
+    number → docNumber → code → serial → _id → id → '-'
+    """
+    return (
+        d.get("number")
+        or d.get("docNumber")
+        or d.get("code")
+        or d.get("serial")
+        or d.get("_id")
+        or d.get("id")
+        or "-"
+    )
+
 # --- API ---
 def fetch_yesterday(base_url):
     start_s, end_s = madrid_yesterday_bounds_epoch_seconds()
@@ -97,7 +112,7 @@ def build_html_table(items, date_label, total_day, titulo, subtitulo):
 
     rows = []
     for d in items:
-        number   = d.get("number") or d.get("code") or d.get("serial") or "-"
+        number   = doc_number(d)
         customer = (d.get("customer") or {}).get("name") or d.get("contactName") or "-"
         total    = float(d.get("total", 0) or 0)
         fecha    = d.get("date") or d.get("createdAt") or d.get("issuedOn") or d.get("updatedAt") or "-"
@@ -159,12 +174,12 @@ def send_email(subject, html):
             "y verifica que MAIL_FROM = SMTP_USER."
         ) from e
 
-# --- Print helper (formato bonito) ---
+# --- Print helper ---
 def print_section(items, date_label, titulo):
     print(f"{titulo} de AYER ({date_label}): {len(items)}\n")
     total_day = 0.0
     for d in items:
-        number   = d.get("number") or d.get("code") or d.get("serial") or "-"
+        number   = doc_number(d)
         customer = (d.get("customer") or {}).get("name") or d.get("contactName") or "-"
         total    = float(d.get("total", 0) or 0)
         fecha    = d.get("date") or d.get("createdAt") or d.get("issuedOn") or d.get("updatedAt") or "-"
@@ -183,15 +198,15 @@ def main():
     orders   = fetch_yesterday(BASE_URL_ORDERS)
     invoices = fetch_yesterday(BASE_URL_INVOICES)
 
-    total_orders   = print_section(orders, date_label, "PEDIDOS")
-    total_invoices = print_section(invoices, date_label, "FACTURAS")
+    total_orders   = print_section(orders, date_label, "Pedidos")
+    total_invoices = print_section(invoices, date_label, "Facturas")
 
     # Email
     html_orders   = build_html_table(orders, date_label, total_orders, "Pedidos", "pedidos")
     html_invoices = build_html_table(invoices, date_label, total_invoices, "Facturas", "facturas")
 
     html = html_orders + "<br><br>" + html_invoices
-    subject = f"PEDIDOS ({len(orders)}) y FACTURAS ({len(invoices)}) — {date_label}"
+    subject = f"Pedidos ({len(orders)}) y Facturas ({len(invoices)}) — {date_label}"
     send_email(subject, html)
 
     print("Email enviado.")
