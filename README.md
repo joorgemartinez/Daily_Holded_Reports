@@ -1,12 +1,5 @@
 # 📧 Daily Holded Orders & Invoices Report
 
-Script en **Python** que consulta los **Pedidos de Venta (Sales Orders) y Facturas (Invoices) en Holded** detectadas en los últimos 10 días en Holded, enviando un **reporte por email** con tablas en HTML.  
-El envío puede ejecutarse **manualmente en local** o de forma **automática cada mañana con GitHub Actions**.
-
----
-
-# 📧 Daily Holded Orders & Invoices Report
-
 Script en **Python** que consulta los **Pedidos de Venta (Sales Orders)** del día anterior y las **Facturas (Invoices) nuevas** detectadas en los últimos 10 días en Holded, enviando un **reporte por email** con tablas en HTML.  
 El envío puede ejecutarse **manualmente en local** o de forma **automática cada mañana con GitHub Actions**.
 
@@ -33,6 +26,7 @@ El envío puede ejecutarse **manualmente en local** o de forma **automática cad
 
 ---
 
+
 ## 📬 Resultado del email
 
 Ejemplo de correo recibido:
@@ -55,7 +49,7 @@ Pedidos (5) y Facturas nuevas (2) — 14/09/2025
 | INV-55 | Cliente A  |  500,00 €  | 2025-09-13 12:00:00 |
 | INV-56 | Cliente C  |  750,00 €  | 2025-09-12 13:30:00 |
 
-
+---
 ## 🛠️ Requisitos
 
 - Python **3.9+** (probado con 3.13 en GitHub Actions).
@@ -128,36 +122,17 @@ Pasos principales:
 
 ---
 
-## 📬 Resultado del email
-
-Ejemplo de correo recibido:
-
-**Asunto**:
-
-Pedidos (5) y Facturas (3) — 14/09/2025
-
-
-**Cuerpo**:
-
-### Pedidos
-| Nº     | Cliente    | Total      | Fecha              |
-|--------|------------|------------|--------------------|
-| SO-101 | Cliente A  | 1.200,00 € | 2025-09-14 09:15:00 |
-| SO-102 | Cliente B  |   950,00 € | 2025-09-14 11:20:00 |
-
-### Facturas
-| Nº     | Cliente    | Total      | Fecha              |
-|--------|------------|------------|--------------------|
-| INV-55 | Cliente A  |  500,00 €  | 2025-09-14 12:00:00 |
-| INV-56 | Cliente C  |  750,00 €  | 2025-09-14 13:30:00 |
-
----
 
 ## 📝 Notas
 
 - La hora de corte es **00:00–23:59 Madrid**, gracias a `zoneinfo`.
 - El script tolera distintas claves de documento: `number`, `docNumber`, `code`, `serial`.
 - En Gmail, recuerda usar una **Contraseña de aplicación** y asegurarte de que `MAIL_FROM = SMTP_USER`.
+
+> ⚠️ **Nota sobre las facturas**   
+> A diferencia de los pedidos, las facturas no siempre se generan con fecha del día anterior.  
+> Es habitual que, por ejemplo, un **lunes** se facture con fecha del **viernes anterior**, que es cuando realmente salió el pedido de almacén.  
+> Por este motivo, el script revisa las facturas emitidas en los **últimos 10 días** y solo considera como *nuevas* aquellas que todavía no estén registradas en el archivo de estado `.state/processed_invoices.json`.
 
 ---
 
